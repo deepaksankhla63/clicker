@@ -1,0 +1,58 @@
+#!/bin/bash
+# Setup script for running Windows 10 in Docker (no persistent data)
+
+# Exit immediately if a command fails
+set -e
+
+echo "🔄 Updating system..."
+sudo apt update -y
+sudo apt install -y docker.io docker-compose
+
+echo "✅ Docker installed successfully."
+
+# Enable and start Docker service
+sudo systemctl enable docker
+sudo systemctl start docker
+
+# Create project directory
+mkdir -p ~/dockercomp
+cd ~/dockercomp
+
+# Create docker-compose file (no volume = no saved data)
+cat << 'EOF' > Win10Docker.yml
+version: '3.8'
+services:
+  windows:
+    image: dockurr/windows
+    container_name: windows
+    environment:
+      VERSION: "10"
+      USERNAME: "Deepak"
+      PASSWORD: "sankhla"
+      RAM_SIZE: "4G"
+      CPU_CORES: "4"
+      DISK_SIZE: "500G"
+    devices:
+      - /dev/kvm
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - 8006:8006
+      - 3389:3389/tcp
+      - 3389:3389/udp
+    stop_grace_period: 2m
+EOF
+
+echo "🚀 Starting Windows 10 container (no persistence)..."
+sudo docker-compose -f Win10Docker.yml up -d
+
+echo ""
+echo "✅ Windows 10 VM is running!"
+echo "🖥️  RDP connection details:"
+echo "   - Address: localhost:3389"
+echo "   - Username: Deepak"
+echo "   - Password: sankhla"
+echo ""
+echo "⚠️  Note: Data will NOT be saved when container stops (no persistence)."
+echo ""
