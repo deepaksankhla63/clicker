@@ -1,58 +1,74 @@
 #!/bin/bash
-# Setup script for running Windows 10 in Docker (no persistent data)
+# ============================================
+# 🪟 WINDOWS 10 DOCKER SETUP SCRIPT
+# 💻 Made by Deepak 🔥
+# ============================================
 
-# Exit immediately if a command fails
+# Exit if any command fails
 set -e
 
-echo "🔄 Updating system..."
-sudo apt update -y
-sudo apt install -y docker.io docker-compose
+echo "===================================================="
+echo "        🔥 WINDOWS 10 DOCKER INSTALLER 🔥           "
+echo "              💥 MADE BY DEEPAK 💥                  "
+echo "===================================================="
 
-echo "✅ Docker installed successfully."
+# Step 1: Become root user
+echo "➡️ Switching to root..."
+sudo su <<'EOF'
 
-# Enable and start Docker service
-sudo systemctl enable docker
-sudo systemctl start docker
+echo "===================================================="
+echo "🔄 UPDATING SYSTEM PACKAGES..."
+echo "===================================================="
+apt update -y
 
-# Create project directory
-mkdir -p ~/dockercomp
-cd ~/dockercomp
+echo "===================================================="
+echo "🐋 INSTALLING DOCKER AND DOCKER-COMPOSE..."
+echo "===================================================="
+apt install -y docker.io docker-compose
 
-# Create docker-compose file (no volume = no saved data)
-cat << 'EOF' > Win10Docker.yml
-version: '3.8'
+echo "===================================================="
+echo "📁 CREATING DOCKER PROJECT FOLDER..."
+echo "===================================================="
+mkdir -p ~/dockercom
+cd ~/dockercom
+
+echo "===================================================="
+echo "📝 CREATING WINDOWS 10 DOCKER-COMPOSE FILE..."
+echo "===================================================="
+
+cat << 'YAML' > windows10.yml
 services:
   windows:
     image: dockurr/windows
     container_name: windows
     environment:
       VERSION: "10"
-      USERNAME: "Deepak"
-      PASSWORD: "sankhla"
+      USERNAME: "SOURAV SEC"
+      PASSWORD: "admin@123"
       RAM_SIZE: "4G"
       CPU_CORES: "4"
-      DISK_SIZE: "500G"
+      DISK_SIZE: "400G"
+      DISK2_SIZE: "100G"
     devices:
       - /dev/kvm
       - /dev/net/tun
     cap_add:
       - NET_ADMIN
     ports:
-      - 8006:8006
-      - 3389:3389/tcp
-      - 3389:3389/udp
+      - "8006:8006"
+      - "3389:3389/tcp"
+      - "3389:3389/udp"
     stop_grace_period: 2m
+YAML
+
+echo "===================================================="
+echo "🚀 STARTING WINDOWS 10 CONTAINER..."
+echo "===================================================="
+
+sudo docker-compose -f windows10.yml up -d
+
+echo "===================================================="
+echo "✅ WINDOWS 10 CONTAINER SETUP COMPLETE!"
+echo "💻 ACCESS USING RDP ON PORT 3389 (USER: SOURAV SEC / PASS: admin@123)"
+echo "===================================================="
 EOF
-
-echo "🚀 Starting Windows 10 container (no persistence)..."
-sudo docker-compose -f Win10Docker.yml up -d
-
-echo ""
-echo "✅ Windows 10 VM is running!"
-echo "🖥️  RDP connection details:"
-echo "   - Address: localhost:3389"
-echo "   - Username: Deepak"
-echo "   - Password: sankhla"
-echo ""
-echo "⚠️  Note: Data will NOT be saved when container stops (no persistence)."
-echo ""
